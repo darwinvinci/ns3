@@ -1,0 +1,33 @@
+m = 10^5;
+
+snr_dB = [0:1:10];
+
+for j = 1:1:length(snr_dB)
+    
+    n_err = 0; n_bits = 0;
+    
+    while n_err < 100
+        
+        BER = zeros;
+        
+        inf_bits = round(rand(1, m));
+        x = -2*(inf_bits - 0.5);
+        N0 = 1/(10^(snr_dB(j)/10));
+        
+        y = x + sqrt(N0/2)*(randn(1, length(x)) + 1i * randn(1,length(x)));
+        
+        est_bits = y < 0;
+        diff = inf_bits - est_bits;
+        
+        n_err = n_err + sum(abs(diff));
+        n_bits = n_bits + length(inf_bits);
+        
+        BER(j) = n_err / n_bits;
+        
+    end
+    
+    theoryBER_AWGN = 0.5 * erfc(sqrt(10.^(snr_dB/10)));
+    
+    semilogy(snr_dB, BER);
+    semilogy(snr_dB, theoryBER_AWGN);
+end
